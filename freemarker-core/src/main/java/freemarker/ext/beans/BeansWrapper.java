@@ -107,13 +107,7 @@ public class BeansWrapper implements RichObjectWrapper, WriteProtectable {
     /**
      * At this level of exposure, all methods and properties of the wrapped
      * objects are exposed to the template except methods that are deemed
-     * not safe. The not safe methods are java.lang.Object methods wait() and
-     * notify(), java.lang.Class methods getClassLoader() and newInstance(),
-     * java.lang.reflect.Method and java.lang.reflect.Constructor invoke() and
-     * newInstance() methods, all java.lang.reflect.Field set methods, all 
-     * java.lang.Thread and java.lang.ThreadGroup methods that can change its 
-     * state, as well as the usual suspects in java.lang.System and
-     * java.lang.Runtime.
+     * not safe by the {@link MemberAccessPolicy}.
      *
      * <p>Note that the {@link MemberAccessPolicy} will further restrict what's visible. That mechanism was introduced
      * much later than "exposure levels", and it's the primary place to look at if you are concerned with safety.
@@ -121,19 +115,21 @@ public class BeansWrapper implements RichObjectWrapper, WriteProtectable {
     public static final int EXPOSE_SAFE = 1;
     
     /**
-     * At this level of exposure, only property getters are exposed.
-     * Additionally, property getters that map to unsafe methods are not
-     * exposed (i.e. Class.classLoader and Thread.contextClassLoader).
+     * At this level of exposure, only Java Bean properties are exposed. For example, if you have
+     * {@code public int getX()} in a public class, then you can access that in templates like {@code obj.x} (but
+     * not as {@code obj.getX()}).
      *
-     * <p>Note that the {@link MemberAccessPolicy} will further restrict what's visible.
+     * <p>Note that the {@link MemberAccessPolicy} will further restricts what's visible.
+     * Java Bean properties (like {@code obj.x} earlier) whose read method (like {@code getX()} earlier) is not
+     * accessible according the policy will not be visible.
      */
     public static final int EXPOSE_PROPERTIES_ONLY = 2;
 
     /**
-     * At this level of exposure, no bean properties and methods are exposed.
+     * At this level of exposure, no Java Bean properties, and no methods are exposed.
      * Only map items, resource bundle items, and objects retrieved through
      * the generic get method (on objects of classes that have a generic get
-     * method) can be retrieved through the hash interface. You might want to 
+     * method) can be retrieved through the {@link TemplateHashModel} interface. You might want to
      * call {@link #setMethodsShadowItems(boolean)} with {@code false} value to
      * speed up map item retrieval.
      */
@@ -270,7 +266,8 @@ public class BeansWrapper implements RichObjectWrapper, WriteProtectable {
      *     <li>
      *       <p>2.3.33 (or higher):
      *       The default of {@link BeansWrapper#setRecordZeroArgumentNonVoidMethodPolicy(ZeroArgumentNonVoidMethodPolicy)}
-     *       has changed to {@link ZeroArgumentNonVoidMethodPolicy#BOTH_PROPERTY_AND_METHOD}, from
+     *       has changed to
+     *       {@link ZeroArgumentNonVoidMethodPolicy#BOTH_METHOD_AND_PROPERTY_UNLESS_BEAN_PROPERTY_READ_METHOD}, from
      *       {@link ZeroArgumentNonVoidMethodPolicy#METHOD_ONLY}. This means that Java record public methods with
      *       0-arguments and non-void return type are now exposed both as properties, and as methods, while earlier they
      *       were only exposed as methods. That is, if in a record you have {@code public String name()}, now in
@@ -674,8 +671,9 @@ public class BeansWrapper implements RichObjectWrapper, WriteProtectable {
     /**
      * Sets the {@link ZeroArgumentNonVoidMethodPolicy} for classes that are Java records; if the
      * {@code BeansWrapper#BeansWrapper(Version) incompatibleImprovements} of the object wrapper is at least 2.3.33,
-     * then this defaults to {@link ZeroArgumentNonVoidMethodPolicy#BOTH_PROPERTY_AND_METHOD}, otherwise this defaults
-     * to {@link ZeroArgumentNonVoidMethodPolicy#METHOD_ONLY}.
+     * then this defaults to
+     * {@link ZeroArgumentNonVoidMethodPolicy#BOTH_METHOD_AND_PROPERTY_UNLESS_BEAN_PROPERTY_READ_METHOD},
+     * otherwise this defaults to {@link ZeroArgumentNonVoidMethodPolicy#METHOD_ONLY}.
      *
      * <p>Note that methods in this class are inherited by {@link DefaultObjectWrapper}, which is what you normally use.
      *
@@ -1949,12 +1947,12 @@ public class BeansWrapper implements RichObjectWrapper, WriteProtectable {
                     throw new BugException("Failed to create PropertyDescriptor for " + m, e);
                 }
                 methodInsteadOfPropertyValueBeforeCall = appliedZeroArgumentNonVoidMethodPolicy ==
-                        ZeroArgumentNonVoidMethodPolicy.BOTH_PROPERTY_AND_METHOD;
+                        ZeroArgumentNonVoidMethodPolicy.BOTH_METHOD_AND_PROPERTY_UNLESS_BEAN_PROPERTY_READ_METHOD;
             } else {
                 exposeAsProperty = null;
                 methodInsteadOfPropertyValueBeforeCall = false;
             }
-            exposeMethodAs = appliedZeroArgumentNonVoidMethodPolicy != ZeroArgumentNonVoidMethodPolicy.PROPERTY_ONLY
+            exposeMethodAs = appliedZeroArgumentNonVoidMethodPolicy != ZeroArgumentNonVoidMethodPolicy.PROPERTY_ONLY_UNLESS_BEAN_PROPERTY_READ_METHOD
                     ? m.getName() : null;
             methodShadowsProperty = true;
             replaceExistingProperty = false;
