@@ -384,7 +384,7 @@ public class DefaultObjectWrapperTest {
             assertTrue(ow.getUseAdaptersForContainers());
             assertTrue(ow.getForceLegacyNonListCollections());
         }
-        
+
         try {
             new DefaultObjectWrapper(new Version(99, 9, 9));
             fail();

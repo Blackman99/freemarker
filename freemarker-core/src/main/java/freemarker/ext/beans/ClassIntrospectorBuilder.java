@@ -26,6 +26,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
+import freemarker.core._JavaVersions;
 import freemarker.template.Configuration;
 import freemarker.template.Version;
 import freemarker.template._TemplateAPI;
@@ -46,6 +47,8 @@ final class ClassIntrospectorBuilder implements Cloneable {
     private boolean exposeFields;
     private MemberAccessPolicy memberAccessPolicy;
     private boolean treatDefaultMethodsAsBeanMembers;
+    private ZeroArgumentNonVoidMethodPolicy defaultZeroArgumentNonVoidMethodPolicy;
+    private ZeroArgumentNonVoidMethodPolicy recordZeroArgumentNonVoidMethodPolicy;
     private MethodAppearanceFineTuner methodAppearanceFineTuner;
     private MethodSorter methodSorter;
     // Attention:
@@ -60,6 +63,8 @@ final class ClassIntrospectorBuilder implements Cloneable {
         exposeFields = ci.exposeFields;
         memberAccessPolicy = ci.memberAccessPolicy;
         treatDefaultMethodsAsBeanMembers = ci.treatDefaultMethodsAsBeanMembers;
+        defaultZeroArgumentNonVoidMethodPolicy = ci.defaultZeroArgumentNonVoidMethodPolicy;
+        recordZeroArgumentNonVoidMethodPolicy = ci.recordZeroArgumentNonVoidMethodPolicy;
         methodAppearanceFineTuner = ci.methodAppearanceFineTuner;
         methodSorter = ci.methodSorter;
     }
@@ -69,15 +74,19 @@ final class ClassIntrospectorBuilder implements Cloneable {
         // change in the BeansWrapper.normalizeIncompatibleImprovements results. That is, this class may don't react
         // to some version changes that affects BeansWrapper, but not the other way around.
         this.incompatibleImprovements = normalizeIncompatibleImprovementsVersion(incompatibleImprovements);
-        treatDefaultMethodsAsBeanMembers
-                = incompatibleImprovements.intValue() >= _VersionInts.V_2_3_26;
+        treatDefaultMethodsAsBeanMembers = incompatibleImprovements.intValue() >= _VersionInts.V_2_3_26;
+        defaultZeroArgumentNonVoidMethodPolicy = ZeroArgumentNonVoidMethodPolicy.METHOD_ONLY;
+        recordZeroArgumentNonVoidMethodPolicy = incompatibleImprovements.intValue() >= _VersionInts.V_2_3_33 && _JavaVersions.JAVA_16 != null
+                ? ZeroArgumentNonVoidMethodPolicy.BOTH_METHOD_AND_PROPERTY_UNLESS_BEAN_PROPERTY_READ_METHOD
+                : defaultZeroArgumentNonVoidMethodPolicy;
         memberAccessPolicy = DefaultMemberAccessPolicy.getInstance(this.incompatibleImprovements);
     }
 
     private static Version normalizeIncompatibleImprovementsVersion(Version incompatibleImprovements) {
         _TemplateAPI.checkVersionNotNullAndSupported(incompatibleImprovements);
         // All breakpoints here must occur in BeansWrapper.normalizeIncompatibleImprovements!
-        return incompatibleImprovements.intValue() >= _VersionInts.V_2_3_30 ? Configuration.VERSION_2_3_30
+        return incompatibleImprovements.intValue() >= _VersionInts.V_2_3_33 ? Configuration.VERSION_2_3_33
+                : incompatibleImprovements.intValue() >= _VersionInts.V_2_3_30 ? Configuration.VERSION_2_3_30
                 : incompatibleImprovements.intValue() >= _VersionInts.V_2_3_21 ? Configuration.VERSION_2_3_21
                 : Configuration.VERSION_2_3_0;
     }
@@ -98,6 +107,8 @@ final class ClassIntrospectorBuilder implements Cloneable {
         result = prime * result + incompatibleImprovements.hashCode();
         result = prime * result + (exposeFields ? 1231 : 1237);
         result = prime * result + (treatDefaultMethodsAsBeanMembers ? 1231 : 1237);
+        result = prime * result + defaultZeroArgumentNonVoidMethodPolicy.hashCode();
+        result = prime * result + recordZeroArgumentNonVoidMethodPolicy.hashCode();
         result = prime * result + exposureLevel;
         result = prime * result + memberAccessPolicy.hashCode();
         result = prime * result + System.identityHashCode(methodAppearanceFineTuner);
@@ -115,6 +126,8 @@ final class ClassIntrospectorBuilder implements Cloneable {
         if (!incompatibleImprovements.equals(other.incompatibleImprovements)) return false;
         if (exposeFields != other.exposeFields) return false;
         if (treatDefaultMethodsAsBeanMembers != other.treatDefaultMethodsAsBeanMembers) return false;
+        if (defaultZeroArgumentNonVoidMethodPolicy != other.defaultZeroArgumentNonVoidMethodPolicy) return false;
+        if (recordZeroArgumentNonVoidMethodPolicy != other.recordZeroArgumentNonVoidMethodPolicy) return false;
         if (exposureLevel != other.exposureLevel) return false;
         if (!memberAccessPolicy.equals(other.memberAccessPolicy)) return false;
         if (methodAppearanceFineTuner != other.methodAppearanceFineTuner) return false;
@@ -153,6 +166,57 @@ final class ClassIntrospectorBuilder implements Cloneable {
         this.treatDefaultMethodsAsBeanMembers = treatDefaultMethodsAsBeanMembers;
     }
 
+    /**
+     * The getter pair of {@link #setDefaultZeroArgumentNonVoidMethodPolicy(ZeroArgumentNonVoidMethodPolicy)}.
+     *
+     * @since 2.3.33
+     */
+    public ZeroArgumentNonVoidMethodPolicy getDefaultZeroArgumentNonVoidMethodPolicy() {
+        return defaultZeroArgumentNonVoidMethodPolicy;
+    }
+
+    /**
+     * Sets the {@link ZeroArgumentNonVoidMethodPolicy} used for classes that are not records (or any other special
+     * cases we add support for later).
+     * The default value is {@link ZeroArgumentNonVoidMethodPolicy#METHOD_ONLY}.
+     *
+     * @since 2.3.33
+     */
+    public void setDefaultZeroArgumentNonVoidMethodPolicy(ZeroArgumentNonVoidMethodPolicy defaultZeroArgumentNonVoidMethodPolicy) {
+        NullArgumentException.check(defaultZeroArgumentNonVoidMethodPolicy);
+        this.defaultZeroArgumentNonVoidMethodPolicy = defaultZeroArgumentNonVoidMethodPolicy;
+    }
+
+    /**
+     * The getter pair of {@link #setRecordZeroArgumentNonVoidMethodPolicy(ZeroArgumentNonVoidMethodPolicy)}.
+     *
+     * @since 2.3.33
+     */
+    public ZeroArgumentNonVoidMethodPolicy getRecordZeroArgumentNonVoidMethodPolicy() {
+        return recordZeroArgumentNonVoidMethodPolicy;
+    }
+
+    /**
+     * Sets the {@link ZeroArgumentNonVoidMethodPolicy} used for records.
+     * The default value is
+     * {@link ZeroArgumentNonVoidMethodPolicy#BOTH_METHOD_AND_PROPERTY_UNLESS_BEAN_PROPERTY_READ_METHOD} if
+     * {@link #getIncompatibleImprovements()} is at least 2.3.33, and we are on Java 16 or later, otherwise
+     * it's {@link ZeroArgumentNonVoidMethodPolicy#METHOD_ONLY}.
+     *
+     * @see #setDefaultZeroArgumentNonVoidMethodPolicy(ZeroArgumentNonVoidMethodPolicy)  
+     *
+     * @since 2.3.33
+     */
+    public void setRecordZeroArgumentNonVoidMethodPolicy(ZeroArgumentNonVoidMethodPolicy recordZeroArgumentNonVoidMethodPolicy) {
+        NullArgumentException.check(recordZeroArgumentNonVoidMethodPolicy);
+        this.recordZeroArgumentNonVoidMethodPolicy = recordZeroArgumentNonVoidMethodPolicy;
+    }
+
+    /**
+     * Get getter pair of {@link #setMemberAccessPolicy(MemberAccessPolicy)}
+     *
+     * @since 2.3.30
+     */
     public MemberAccessPolicy getMemberAccessPolicy() {
         return memberAccessPolicy;
     }

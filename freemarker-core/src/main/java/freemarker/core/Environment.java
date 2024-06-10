@@ -3715,7 +3715,7 @@ public final class Environment extends Configurable {
     private void popElement() {
         if (templateProcessingTracer != null) {
             TemplateElement element = instructionStack[instructionStackSize - 1];
-            templateProcessingTracer.exitElement(this);
+            templateProcessingTracer.exitElement(this, element);
         }
         instructionStackSize--;
     }

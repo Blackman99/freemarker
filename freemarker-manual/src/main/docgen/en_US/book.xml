@@ -20,13 +20,16 @@
 <book conformance="docgen" version="5.0" xml:lang="en"
       xmlns="http://docbook.org/ns/docbook"
       xmlns:xlink="http://www.w3.org/1999/xlink"
->
+      xmlns:ns5="http://www.w3.org/1999/xhtml"
+      xmlns:ns4="http://www.w3.org/1998/Math/MathML"
+      xmlns:ns3="http://www.w3.org/2000/svg"
+      xmlns:ns="http://docbook.org/ns/docbook">
   <info>
     <title>Apache FreeMarker Manual</title>
 
     <titleabbrev>Manual</titleabbrev>
 
-    <productname>Freemarker 2.3.33</productname>
+    <productname>Freemarker 2.3.34</productname>
   </info>
 
   <preface role="index.html" xml:id="preface">
@@ -21414,8 +21417,8 @@ Primary content continued</programlisting>
           instead.</para>
 
           <para>This directive only has effect on the section that is
-          literally (as in the text editor) inside the nested bock, not on the
-          parts that are called/included from there.</para>
+          literally (as in the text editor) inside the nested block, not on
+          the parts that are called/included from there.</para>
 
           <para>Example:</para>
 
@@ -24133,8 +24136,8 @@ or
           instead.</para>
 
           <para>This directive only has effect on the section that is
-          literally (as in the text editor) inside the nested bock, not on the
-          parts that are called/included from there.</para>
+          literally (as in the text editor) inside the nested block, not on
+          the parts that are called/included from there.</para>
 
           <para>Example:</para>
 
@@ -24326,8 +24329,8 @@ ${"&amp;"}</programlisting>
           block, the earlier output format is restored.</para>
 
           <para>This directive only has effect on the section that is
-          literally (as in the text editor) inside the nested bock, not on the
-          parts that are called/included from there.</para>
+          literally (as in the text editor) inside the nested block, not on
+          the parts that are called/included from there.</para>
 
           <para>Example:</para>
 
@@ -30111,21 +30114,57 @@ TemplateModel x = env.getVariable("x");  // get variable x</programlisting>
     <appendix xml:id="app_versions">
       <title>Version history</title>
 
+      <section xml:id="versions_2_3_34">
+        <title>2.3.34</title>
+
+        <para>Release date: TODO</para>
+
+        <section>
+          <title>Changes on the Java side</title>
+
+          <itemizedlist>
+            <listitem>
+              <para>Using multi-release JAR format (JEP 238) to put Java 9 and
+              Java 16 support files
+              (<literal>freemarker.core._Java9Impl</literal> and
+              <literal>_Java16Impl</literal>) into
+              <literal>freemarker.jar</literal>. This means that they are now
+              under <literal>META-INF/versions/9</literal> and
+              <literal>16</literal>, instead of in the usual location together
+              with Java 8 byte code class files. This was needed as some
+              tools, like Maven Enforcer plugin, have seen them as problems
+              otherwise.</para>
+            </listitem>
+          </itemizedlist>
+        </section>
+      </section>
+
       <section xml:id="versions_2_3_33">
         <title>2.3.33</title>
 
-        <para>Release date: [TODO]</para>
+        <para>Release date: 2024-06-01</para>
 
         <para>Please note that with this version the minimum required Java
-        version was increased from Java 7 to Java 8. Also for the few who
-        relly on Servlet and/or JSP support, the minimum is now increased to
-        Servlet 3.0, and JSP 2.2 (which are still very old versions from
-        2011).</para>
+        version was increased from Java 7 to Java 8. Also for the few who rely
+        on Servlet and/or JSP support, the minimum is now increased to Servlet
+        3.0, and JSP 2.2 (which are still very old versions from 2011).</para>
 
         <section>
           <title>Changes on the FTL side</title>
 
           <itemizedlist>
+            <listitem>
+              <para><link
+              xlink:href="https://issues.apache.org/jira/browse/FREEMARKER-183">FREEMARKER-183</link>:
+              If FreeMarker is configured like so, values in Java records can
+              now be referred like <literal>obj.price</literal>, instead of
+              like <literal>obj.price()</literal>. Furthermore, FreeMarker can
+              now be configured to allow this for all 0-argument
+              non-<literal>void</literal> methods. See more details in the
+              <link linkend="version_hisotry_freemarker_183_java_side">Changes
+              on the Java side</link> section below.</para>
+            </listitem>
+
             <listitem>
               <para><link
               xlink:href="https://github.com/apache/freemarker/pull/87">GitHub
@@ -30200,6 +30239,21 @@ TemplateModel x = env.getVariable("x");  // get variable x</programlisting>
 
             <listitem>
               <para><link
+              xlink:href="https://issues.apache.org/jira/browse/FREEMARKER-216">FREEMARKER-216</link>:
+              Fixed <literal>IllegalAccessException</literal>-s on Java 16 and
+              later, when calling a public method that was last overridden by
+              a public class that's however JDK internal (see JEP 396). More
+              generally, we avoid this error if a class comes from the package
+              of a Java module that doesn't export that package to the module
+              where FreeMarker resides, by looking for an accessible public
+              method in a public class that the unaccessible one overrides
+              (maybe indirectly). If there's no such method, then the method
+              won't be visible (despite that both the method and the class is
+              public).</para>
+            </listitem>
+
+            <listitem>
+              <para><link
               xlink:href="https://issues.apache.org/jira/browse/FREEMARKER-219">FREEMARKER-219</link>:
               The <link linkend="ref_builtin_truncate"><quote>truncate</quote>
               family of built-ins</link>, as in
@@ -30229,10 +30283,125 @@ TemplateModel x = env.getVariable("x");  // get variable x</programlisting>
           </itemizedlist>
         </section>
 
-        <section>
+        <section xml:id="version_hisotry_freemarker_183_java_side">
           <title>Changes on the Java side</title>
 
           <itemizedlist>
+            <listitem>
+              <para><link
+              xlink:href="https://issues.apache.org/jira/browse/FREEMARKER-183">FREEMARKER-183</link>:
+              Better support for Java records, if you set the <link
+              linkend="pgui_config_incompatible_improvements_how_to_set"><literal>incompatible_improvements</literal>
+              setting</link> to 2.3.33 or higher (or if you create your own
+              <literal>ObjectWrapper</literal>, then set its
+              <literal>incompatible_improvements</literal>, or just its
+              <literal>recordZeroArgumentNonVoidMethodPolicy</literal>
+              property to
+              <literal>BOTH_METHOD_AND_PROPERTY_UNLESS_BEAN_PROPERTY_READ_METHOD</literal>).
+              If in a Java record you have something like <literal>int
+              price()</literal>, earlier you could only read the value in
+              templates as <literal>obj.price()</literal>. With this
+              improvement <literal>obj.price</literal> will do the same (and
+              similarly, <literal>obj["price"]()</literal>, and
+              <literal>obj["price"]</literal> will do the same). This has
+              always worked for JavaBeans properties, like <literal>int
+              getPrice()</literal> could always be used in templates as
+              <literal>obj.price</literal>, in additionally to as
+              <literal>obj.getPrice()</literal>. Now this also works for Java
+              records, as there we simply treat all methods that has 0
+              arguments, and non-<literal>void</literal> return type as if it
+              was a JavaBean property read method. Except, here the name of
+              the method is exactly the same as the name of the faked
+              JavaBeans property (<literal>price</literal>), while with real
+              JavaBeans the read method name typically would be
+              <literal>getPrice</literal>, and the property name would be
+              <literal>price</literal> (so we have two separate names). There
+              are some strange technical tricks involved for the same name to
+              be usable in both ways, but as far as most users care, it just
+              works.</para>
+
+              <para>Some more technical changes:</para>
+
+              <itemizedlist>
+                <listitem>
+                  <para>Added two new settings to
+                  <literal>BeansWrapper</literal>, and therefore
+                  <literal>DefaultObjectWrapper</literal>:
+                  <literal>recordZeroArgumentNonVoidMethodPolicy</literal>,
+                  and
+                  <literal>defaultZeroArgumentNonVoidMethodPolicy</literal>.
+                  Each has enum type
+                  <literal>freemarker.ext.beans.ZeroArgumentNonVoidMethodPolicy</literal>,
+                  that can be <literal>METHOD_ONLY</literal>,
+                  <literal>PROPERTY_ONLY_UNLESS_BEAN_PROPERTY_READ_METHOD</literal>,
+                  or
+                  <literal>BOTH_METHOD_AND_PROPERTY_UNLESS_BEAN_PROPERTY_READ_METHOD</literal>.
+                  Therefore:</para>
+
+                  <itemizedlist>
+                    <listitem>
+                      <para>Note that with
+                      <literal>defaultZeroArgumentNonVoidMethodPolicy</literal>
+                      you can set similar behavior to non-records. That is,
+                      you can call 0 argument non-void methods without
+                      <literal>()</literal>, if you want. It's only meant to
+                      be used for methods that are mere value readers, and has
+                      no side effect.</para>
+                    </listitem>
+
+                    <listitem>
+                      <para>For records, you can enforce proper style with
+                      setting
+                      <literal>recordZeroArgumentNonVoidMethodPolicy</literal>
+                      to
+                      <literal>PROPERTY_ONLY_UNLESS_BEAN_PROPERTY_READ_METHOD</literal>.
+                      The default with
+                      <literal>incompatible_improvements</literal> 2.3.33 is
+                      more lenient, as there using <literal>()</literal> is
+                      allowed (for backward compatibility, and because people
+                      often just use the Java syntax).</para>
+                    </listitem>
+                  </itemizedlist>
+                </listitem>
+
+                <listitem>
+                  <para>Added new interface,
+                  <literal>freemarker.template.MethodCallAwareTemplateHashModel</literal>,
+                  which adds <literal>getBeforeMethodCall(String
+                  key)</literal>. If you have something like
+                  <literal>obj.price()</literal> in a template, where
+                  <literal>obj</literal> (after wrapping) implements that
+                  interface, then
+                  <literal>getBeforeMethodCall("price")</literal> called
+                  instead of
+                  <literal>TemplateHashModel.get("price")</literal>. This is
+                  needed for
+                  <literal>ZeroArgumentNonVoidMethodPolicy.BOTH_METHOD_AND_PROPERTY_UNLESS_BEAN_PROPERTY_READ_METHOD</literal>
+                  to work.</para>
+                </listitem>
+
+                <listitem>
+                  <para>Added <literal>GenericObjectModel</literal>, which
+                  extends <literal>StringModel</literal> with implementing
+                  <literal>MethodCallAwareTemplateHashModel</literal>, and has
+                  a more telling name. <literal>BeansWrapper</literal>, and
+                  therefore <literal>DefaultObjectWrapper</literal> now
+                  creates <literal>GenericObjectModel</literal>-s instead of
+                  <literal>StringModel</literal>-s. This is like so regardless
+                  of any setting, like regardless of
+                  <literal>incompatible_improvements</literal>.</para>
+                </listitem>
+
+                <listitem>
+                  <para>You shouldn't override
+                  <literal>BeanModel.get(String)</literal> anymore, but
+                  <literal>BeanModel.get(String, boolean)</literal>. If you
+                  have overridden <literal>get</literal>, then see in the
+                  Javadoc for more.</para>
+                </listitem>
+              </itemizedlist>
+            </listitem>
+
             <listitem>
               <para><link
               xlink:href="https://github.com/apache/freemarker/pull/88">GitHub

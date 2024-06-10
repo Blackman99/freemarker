@@ -24,6 +24,6 @@ plugins {
 dependencies {
     implementation(gradleApi())
 
-    implementation("org.apache.freemarker.docgen:freemarker-docgen-core:0.0.2-SNAPSHOT")
-    implementation("org.nosphere.apache:creadur-rat-gradle:0.7.0")
+    implementation("org.apache.freemarker.docgen:freemarker-docgen-core:0.0.3-SNAPSHOT")
+    implementation("org.nosphere.apache:creadur-rat-gradle:0.8.1")
 }

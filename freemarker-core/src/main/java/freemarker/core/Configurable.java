@@ -1757,8 +1757,20 @@ public class Configurable {
     }
 
     /**
-     * Sets the object wrapper used to wrap objects to {@link TemplateModel}-s.
-     * The default is {@link ObjectWrapper#DEFAULT_WRAPPER}.
+     * Sets the {@link ObjectWrapper} used to wrap objects to {@link TemplateModel}-s when using this
+     * {@link Configurable}.
+     *
+     * <p>On {@link Configuration} level, the default is a {@link DefaultObjectWrapper} instance with the same
+     * {@link Configuration#setIncompatibleImprovements incompatible_improvements} setting value as of the
+     * {@link Configuration}. (Also, with very low incompatible improvements it's
+     * {@link ObjectWrapper#DEFAULT_WRAPPER}.). Untill you called this method, the default value will be
+     * automatically replaced when {@link Configuration#setIncompatibleImprovements(Version)} is called, to follow
+     * the value of the {@code incompatible_improvements} setting.
+     *
+     * <p>Below {@link Configuration} level it's usually unset, so we fall back to
+     * what's coming from {@link Configuration}.
+     *
+     * @param objectWrapper Not null.
      */
     public void setObjectWrapper(ObjectWrapper objectWrapper) {
         NullArgumentException.check("objectWrapper", objectWrapper);
@@ -2861,7 +2873,7 @@ public class Configurable {
      *      <p>If you have no constructor arguments and property setters, and the <code><i>className</i></code> class has
      *      a public static {@code INSTANCE} field, the value of that filed will be the value of the expression, and
      *      the constructor won't be called. Note that if you use the backward compatible
-     *      syntax, where these's no parenthesis after the class name, then it will not look for {@code INSTANCE}.
+     *      syntax, where there's no parenthesis after the class name, then it will not look for {@code INSTANCE}.
      *   </li>
      *   <li>
      *      <p>If there exists a class named <code><i>className</i>Builder</code>, then that class will be instantiated

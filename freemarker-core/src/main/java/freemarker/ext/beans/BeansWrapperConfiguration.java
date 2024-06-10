@@ -266,6 +266,49 @@ public abstract class BeansWrapperConfiguration implements Cloneable {
         classIntrospectorBuilder.setTreatDefaultMethodsAsBeanMembers(treatDefaultMethodsAsBeanMembers);
     }
 
+    /**
+     * Getter pair of {@link #setDefaultZeroArgumentNonVoidMethodPolicy}.
+     *
+     * @since 2.3.33
+     */
+    public ZeroArgumentNonVoidMethodPolicy getDefaultZeroArgumentNonVoidMethodPolicy() {
+        return classIntrospectorBuilder.getDefaultZeroArgumentNonVoidMethodPolicy();
+    }
+
+    /**
+     * See {@link BeansWrapper#setDefaultZeroArgumentNonVoidMethodPolicy(ZeroArgumentNonVoidMethodPolicy)}.
+     *
+     * <p>Note that methods in this class are inherited by {@link DefaultObjectWrapperBuilder}, which is what you normally use.
+     *
+     * @since 2.3.33
+     */
+    public void setDefaultZeroArgumentNonVoidMethodPolicy(ZeroArgumentNonVoidMethodPolicy defaultZeroArgumentNonVoidMethodPolicy) {
+        classIntrospectorBuilder.setDefaultZeroArgumentNonVoidMethodPolicy(defaultZeroArgumentNonVoidMethodPolicy);
+    }
+
+    /**
+     * Getter pair of {@link #setRecordZeroArgumentNonVoidMethodPolicy}.
+     *
+     * @since 2.3.33
+     */
+    public ZeroArgumentNonVoidMethodPolicy getRecordZeroArgumentNonVoidMethodPolicy() {
+        return classIntrospectorBuilder.getRecordZeroArgumentNonVoidMethodPolicy();
+    }
+
+    /**
+     * See {@link BeansWrapper#setRecordZeroArgumentNonVoidMethodPolicy(ZeroArgumentNonVoidMethodPolicy)}
+     *
+     * <p>Note that methods in this class are inherited by {@link DefaultObjectWrapperBuilder}, which is what you normally use.
+     *
+     * @since 2.3.33
+     */
+    public void setRecordZeroArgumentNonVoidMethodPolicy(ZeroArgumentNonVoidMethodPolicy recordZeroArgumentNonVoidMethodPolicy) {
+        classIntrospectorBuilder.setRecordZeroArgumentNonVoidMethodPolicy(recordZeroArgumentNonVoidMethodPolicy);
+    }
+
+    /**
+     * Getter pair of {@link #setMethodAppearanceFineTuner}
+     */
     public MethodAppearanceFineTuner getMethodAppearanceFineTuner() {
         return classIntrospectorBuilder.getMethodAppearanceFineTuner();
     }
@@ -274,6 +317,8 @@ public abstract class BeansWrapperConfiguration implements Cloneable {
      * See {@link BeansWrapper#setMethodAppearanceFineTuner(MethodAppearanceFineTuner)}; additionally,
      * note that currently setting this to non-{@code null} will disable class introspection cache sharing, unless
      * the value implements {@link SingletonCustomizer}.
+     *
+     * <p>Note that methods in this class are inherited by {@link DefaultObjectWrapperBuilder}, which is what you normally use.
      */
     public void setMethodAppearanceFineTuner(MethodAppearanceFineTuner methodAppearanceFineTuner) {
         classIntrospectorBuilder.setMethodAppearanceFineTuner(methodAppearanceFineTuner);
