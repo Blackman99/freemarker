@@ -17,13 +17,8 @@
  * under the License.
  */
 
-plugins {
-    `kotlin-dsl`
-}
-
-dependencies {
-    implementation(gradleApi())
-
-    implementation("org.apache.freemarker.docgen:freemarker-docgen-core:0.0.3-SNAPSHOT")
-    implementation("org.nosphere.apache:creadur-rat-gradle:0.8.1")
-}
+/**
+ * <a href="http://jakarta.apache.org/ant" target="_blank">Ant task</a> to transform XML files
+ * with a template; a more powerful alternative is <a href="http://fmpp.sourceforge.net/" target="_blank">FMPP</a>.
+ */
+package freemarker.ext.ant;

@@ -17,13 +17,7 @@
  * under the License.
  */
 
-plugins {
-    `kotlin-dsl`
-}
-
-dependencies {
-    implementation(gradleApi())
-
-    implementation("org.apache.freemarker.docgen:freemarker-docgen-core:0.0.3-SNAPSHOT")
-    implementation("org.nosphere.apache:creadur-rat-gradle:0.8.1")
-}
+/**
+ * Logging facility; dispatches FreeMarker log messages to the chosen logger library.
+ */
+package freemarker.log;

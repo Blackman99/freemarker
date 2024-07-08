@@ -17,13 +17,14 @@
  * under the License.
  */
 
-plugins {
-    `kotlin-dsl`
-}
-
-dependencies {
-    implementation(gradleApi())
-
-    implementation("org.apache.freemarker.docgen:freemarker-docgen-core:0.0.3-SNAPSHOT")
-    implementation("org.nosphere.apache:creadur-rat-gradle:0.8.1")
-}
+/**
+ * The {@linkplain freemarker.template.DefaultObjectWrapper default object wrapper} of FreeMarker uses
+ * this to expose Java Beans and POJO-s to templates.
+ *
+ * <p>Most of the issues dealing with beans are handled by the {@link freemarker.ext.beans.BeansWrapper#wrap(Object)}
+ * and {@link freemarker.ext.beans.BeansWrapper#getStaticModels()} methods. In normal cases, these are the only methods
+ * you should use to turn an arbitrary Java object into a FreeMarker {@link freemarker.template.TemplateModel}.
+ * Additionally, you can manually create instance of any wrapper class using its constructors. Note, however that in
+ * such cases you bypass the eventual model caching of the wrapper.</p>
+ */
+package freemarker.ext.beans;

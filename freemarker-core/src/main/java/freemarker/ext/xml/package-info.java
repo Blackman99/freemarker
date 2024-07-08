@@ -17,13 +17,8 @@
  * under the License.
  */
 
-plugins {
-    `kotlin-dsl`
-}
-
-dependencies {
-    implementation(gradleApi())
-
-    implementation("org.apache.freemarker.docgen:freemarker-docgen-core:0.0.3-SNAPSHOT")
-    implementation("org.nosphere.apache:creadur-rat-gradle:0.8.1")
-}
+/**
+ * Deprecated, use W3C DOM with {@link freemarker.ext.dom} instead;
+ * Exposes XML from DOM, dom4j or JDOM nodes, uniformly.
+ */
+package freemarker.ext.xml;

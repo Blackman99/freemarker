@@ -17,13 +17,12 @@
  * under the License.
  */
 
-plugins {
-    `kotlin-dsl`
-}
-
-dependencies {
-    implementation(gradleApi())
-
-    implementation("org.apache.freemarker.docgen:freemarker-docgen-core:0.0.3-SNAPSHOT")
-    implementation("org.nosphere.apache:creadur-rat-gradle:0.8.1")
-}
+/**
+ * Classes for two-way FreeMarker-JSP integration. It contains both a JSP custom tag that allows embedding of FreeMarker
+ * templates inside JSP pages, as well as the infrastructure that allows JSP custom tags to be used inside FreeMarker
+ * templates.
+ *
+ * Note that this is for the legacy "javax" Servlet/JSP API; for Jakarta (that is, in modern Servlet containers),
+ * use the <code>freemarker.ext.jakarta.jsp</code> package instead (since 2.3.33).
+ */
+package freemarker.ext.jsp;

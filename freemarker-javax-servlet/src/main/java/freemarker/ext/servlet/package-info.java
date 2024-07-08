@@ -17,13 +17,12 @@
  * under the License.
  */
 
-plugins {
-    `kotlin-dsl`
-}
-
-dependencies {
-    implementation(gradleApi())
-
-    implementation("org.apache.freemarker.docgen:freemarker-docgen-core:0.0.3-SNAPSHOT")
-    implementation("org.nosphere.apache:creadur-rat-gradle:0.8.1")
-}
+/**
+ * Servlet for legacy "Model 2" frameworks that allows using FreeMarker
+ * templates instead of JSP as the MVC View (see <a href="https://freemarker.apache.org/docs/pgui_misc_servlet.html"
+ * target="_blank">in the Manual</a>).</p>
+ *
+ * <p>Note that this is for the legacy "javax" Servlet/JSP API; for Jakarta (that is, in modern Servlet containers),
+ * use the {@code freemarker.ext.jakarta.servlet} package instead (since 2.3.33).
+ */
+package freemarker.ext.servlet;

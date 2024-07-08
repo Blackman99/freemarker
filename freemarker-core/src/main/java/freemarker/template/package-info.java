@@ -17,13 +17,10 @@
  * under the License.
  */
 
-plugins {
-    `kotlin-dsl`
-}
-
-dependencies {
-    implementation(gradleApi())
-
-    implementation("org.apache.freemarker.docgen:freemarker-docgen-core:0.0.3-SNAPSHOT")
-    implementation("org.nosphere.apache:creadur-rat-gradle:0.8.1")
-}
+/**
+ * <b>The fundamental, most commonly used API-s of FreeMarker;</b>
+ * start with {@link freemarker.template.Configuration Configuration} (see also the
+ * <a href="https://freemarker.apache.org/docs/pgui_quickstart.html" target="_blank">Getting Started</a> in the
+ * Manual.)
+ */
+package freemarker.template;

@@ -17,13 +17,21 @@
  * under the License.
  */
 
-plugins {
-    `kotlin-dsl`
-}
-
-dependencies {
-    implementation(gradleApi())
-
-    implementation("org.apache.freemarker.docgen:freemarker-docgen-core:0.0.3-SNAPSHOT")
-    implementation("org.nosphere.apache:creadur-rat-gradle:0.8.1")
-}
+/**
+ * JUnit test-suite that processes FreeMarker templates and compare their
+ * output to reference files.
+ * 
+ * <p>To add a test-case, go to
+ * {@code src/test/resources/freemarker/test/templatesuite/} and inside that
+ * directory:</p>
+ * 
+ * <ol>
+ * <li>Add a template to under {@code templates/} with whatever meaningful file name</li>
+ * <li>Add the expected output to {@code references/} with exactly the same file name</li>
+ * <li>Add a new {@code testcase} element to {@code testcases.xml}</li>
+ * <li>If you want to add items to the data-model or do something else special, modify the {@code setUp()} method in
+ * {@code src/test/java/freemarker/test/templatesuite/TemplateTestCase.java}
+ * </li>
+ * </ol>
+ */
+package freemarker.test.templatesuite;

@@ -17,13 +17,8 @@
  * under the License.
  */
 
-plugins {
-    `kotlin-dsl`
-}
-
-dependencies {
-    implementation(gradleApi())
-
-    implementation("org.apache.freemarker.docgen:freemarker-docgen-core:0.0.3-SNAPSHOT")
-    implementation("org.nosphere.apache:creadur-rat-gradle:0.8.1")
-}
+/**
+ * Debugging API; experimental status, might change!
+ * This is to support debugging in IDE-s. If you are working on a client for this, don't hesitate to contact us!
+ */
+package freemarker.debug;
