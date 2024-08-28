@@ -24,13 +24,14 @@ import java.io.IOException;
 import freemarker.template.TemplateException;
 
 /**
- * An instruction representing a switch-case structure.
+ * An instruction representing a switch-case or switch-on structure.
  */
 final class SwitchBlock extends TemplateElement {
 
     private Case defaultCase;
+    private boolean usesOnDirective;
     private final Expression searched;
-    private int firstCaseIndex;
+    private int firstCaseOrOnIndex;
 
     /**
      * @param searched the expression to be tested.
@@ -43,12 +44,9 @@ final class SwitchBlock extends TemplateElement {
         for (int i = 0; i < ignoredCnt; i++) {
             addChild(ignoredSectionBeforeFirstCase.getChild(i));
         }
-        firstCaseIndex = ignoredCnt; // Note that normally postParseCleanup will overwrite this 
+        firstCaseOrOnIndex = ignoredCnt; // Note that normally postParseCleanup will overwrite this
     }
 
-    /**
-     * @param cas a Case element.
-     */
     void addCase(Case cas) {
         if (cas.condition == null) {
             defaultCase = cas;
@@ -56,37 +54,67 @@ final class SwitchBlock extends TemplateElement {
         addChild(cas);
     }
 
+    void addOn(On on) {
+        addChild(on);
+        usesOnDirective = true;
+    }
+
     @Override
-    TemplateElement[] accept(Environment env)
-        throws TemplateException, IOException {
-        boolean processedCase = false;
+    TemplateElement[] accept(Environment env) throws TemplateException, IOException {
         int ln = getChildCount();
-        try {
-            for (int i = firstCaseIndex; i < ln; i++) {
-                Case cas = (Case) getChild(i);
-                boolean processCase = false;
+        if (usesOnDirective) {
+            processOnDirectives: for (int i = firstCaseOrOnIndex; i < ln; i++) {
+                TemplateElement tel = getChild(i);
 
-                // Fall through if a previous case tested true.
-                if (processedCase) {
-                    processCase = true;
-                } else if (cas.condition != null) {
-                    // Otherwise, if this case isn't the default, test it.
-                    processCase = EvalUtil.compare(
+                // "default" is always the last; the parser ensures this
+                if (tel == defaultCase) {
+                    env.visit(defaultCase);
+                    break;
+                }
+
+                for (Expression condition : ((On) tel).conditions) {
+                    boolean processOn = EvalUtil.compare(
                             searched,
-                            EvalUtil.CMP_OP_EQUALS, "case==", cas.condition, cas.condition, env);
-                }
-                if (processCase) {
-                    env.visit(cas);
-                    processedCase = true;
+                            EvalUtil.CMP_OP_EQUALS, "on==", condition, condition, env);
+                    if (processOn) {
+                        env.visit(tel);
+                        break processOnDirectives;
+                    }
                 }
             }
+        } else { // case-s
+            try {
+                boolean processedCaseOrOn = false;
+                for (int i = firstCaseOrOnIndex; i < ln; i++) {
+                    TemplateElement tel = getChild(i);
 
-            // If we didn't process any nestedElements, and we have a default,
-            // process it.
-            if (!processedCase && defaultCase != null) {
-                env.visit(defaultCase);
+                    Expression condition = ((Case) tel).condition;
+                    boolean processCase = false;
+
+                    // Fall through if a previous case tested true.
+                    if (processedCaseOrOn) {
+                        processCase = true;
+                    } else if (condition != null) {
+                        // Otherwise, if this case isn't the default, test it.
+                        processCase = EvalUtil.compare(
+                                searched,
+                                EvalUtil.CMP_OP_EQUALS, "case==", condition, condition, env);
+                    }
+                    if (processCase) {
+                        env.visit(tel);
+                        processedCaseOrOn = true;
+                    }
+                }
+                // If we didn't process any nestedElements, and we have a default,
+                // process it.
+                if (!processedCaseOrOn && defaultCase != null) {
+                    env.visit(defaultCase);
+                }
+            } catch (BreakOrContinueException br) {
+                // This catches both break and continue, hence continue is incorrectly treated as a break inside a case.
+                // ("on", doesn't have this bug.)
             }
-        } catch (BreakOrContinueException br) {}
+        }
         return null;
     }
 
@@ -142,10 +170,12 @@ final class SwitchBlock extends TemplateElement {
         // The first #case might have shifted in the child array, so we have to find it again:
         int ln = getChildCount();
         int i = 0;
-        while (i < ln && !(getChild(i) instanceof Case)) {
+        while (i < ln
+                && !(getChild(i) instanceof Case)
+                && !(getChild(i) instanceof On)) {
             i++;
         }
-        firstCaseIndex = i;
+        firstCaseOrOnIndex = i;
         
         return result;
     }
