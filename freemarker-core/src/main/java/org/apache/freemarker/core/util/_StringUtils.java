@@ -585,8 +585,10 @@ public class _StringUtils {
      * @param s maybe {@code null}.
      */
     public static String emptyToNull(String s) {
-    	if (s == null) return null;
-    	return s.length() == 0 ? null : s;
+    	if (s == null) {
+            return null;
+        }
+    	return s.isEmpty() ? null : s;
     }
     
     /**
@@ -1492,6 +1494,16 @@ public class _StringUtils {
             }
         }
         return true;
+    }
+
+    /**
+     * Like {@link Character#isWhitespace(char)}, but also considers non-breaking whitespace characters as whitespace.
+     */
+    public static boolean isWhitespaceOrNonBreakingWhitespace(char c) {
+        if (Character.isWhitespace(c)) {
+            return true;
+        }
+        return c == '\u00A0' || c == '\u202F' || c == '\u2007' || c == '\u2060';
     }
 
     /**

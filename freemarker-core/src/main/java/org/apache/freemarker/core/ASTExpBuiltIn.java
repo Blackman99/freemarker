@@ -49,7 +49,7 @@ abstract class ASTExpBuiltIn extends ASTExpression implements Cloneable {
     protected ASTExpression target;
     protected String key;
 
-    static final int NUMBER_OF_BIS = 275;
+    static final int NUMBER_OF_BIS = 278;
     static final HashMap<String, ASTExpBuiltIn> BUILT_INS_BY_NAME = new HashMap<>(NUMBER_OF_BIS * 3 / 2 + 1, 1f);
 
     static {
@@ -59,6 +59,7 @@ abstract class ASTExpBuiltIn extends ASTExpression implements Cloneable {
         putBI("absoluteTemplateName", new BuiltInsForStringsMisc.absolute_template_nameBI());
         putBI("ancestors", new ancestorsBI());
         putBI("api", new BuiltInsForMultipleTypes.apiBI());
+        putBI("blankToNull", new BuiltInsForExistenceHandling.blank_to_nullBI());
         putBI("boolean", new BuiltInsForStringsMisc.booleanBI());
         putBI("byte", new byteBI());
         putBI("c", new BuiltInsForMultipleTypes.cBI());
@@ -74,6 +75,7 @@ abstract class ASTExpBuiltIn extends ASTExpression implements Cloneable {
         putBI("dateTime", new BuiltInsForMultipleTypes.dateBI(TemplateDateModel.DATE_TIME));
         putBI("dateTimeIfUnknown", new BuiltInsForDates.dateType_if_unknownBI(TemplateDateModel.DATE_TIME));
         putBI("double", new doubleBI());
+        putBI("emptyToNull", new BuiltInsForExistenceHandling.empty_to_nullBI());
         putBI("endsWith", new BuiltInsForStringsBasic.ends_withBI());
         putBI("ensureEndsWith", new BuiltInsForStringsBasic.ensure_ends_withBI());
         putBI("ensureStartsWith", new BuiltInsForStringsBasic.ensure_starts_withBI());
@@ -241,6 +243,7 @@ abstract class ASTExpBuiltIn extends ASTExpression implements Cloneable {
         putBI("time", new BuiltInsForMultipleTypes.dateBI(TemplateDateModel.TIME));
         putBI("timeIfUnknown", new BuiltInsForDates.dateType_if_unknownBI(TemplateDateModel.TIME));
         putBI("trim", new BuiltInsForStringsBasic.trimBI());
+        putBI("trimToNull", new BuiltInsForExistenceHandling.trim_to_nullBI());
         putBI("truncate", new BuiltInsForStringsBasic.truncateBI());
         putBI("truncateW", new BuiltInsForStringsBasic.truncate_wBI());
         putBI("truncateC", new BuiltInsForStringsBasic.truncate_cBI());

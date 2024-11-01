@@ -21,6 +21,8 @@ package org.apache.freemarker.core;
 
 import org.apache.freemarker.core.model.TemplateBooleanModel;
 import org.apache.freemarker.core.model.TemplateModel;
+import org.apache.freemarker.core.model.impl.SimpleString;
+import org.apache.freemarker.core.util._StringUtils;
 
 /**
  * A holder for builtins that deal with null left-hand values.
@@ -64,5 +66,66 @@ class BuiltInsForExistenceHandling {
             return _eval(env) == TemplateBooleanModel.TRUE;
         }
     }
-    
+
+    static class blank_to_nullBI extends BuiltInsForExistenceHandling.ExistenceBuiltIn {
+        @Override
+        TemplateModel _eval(Environment env) throws TemplateException {
+            TemplateModel model = evalMaybeNonexistentTarget(env);
+
+            if (model == null) {
+                return null;
+            }
+
+            String s = _EvalUtils.coerceModelToPlainTextOrUnsupportedMarkup(model, target, null, env);
+            return isBlank(s) ? null : model;
+        }
+
+        private static boolean isBlank(String s) {
+            if (s == null) {
+                return true;
+            }
+
+            int len = s.length();
+            if (len == 0) {
+                return true;
+            }
+
+            for (int i = 0; i < len; i++) {
+                if (!_StringUtils.isWhitespaceOrNonBreakingWhitespace(s.charAt(i))) {
+                    return false;
+                }
+            }
+            return true;
+        }
+    }
+
+    static class trim_to_nullBI extends BuiltInsForExistenceHandling.ExistenceBuiltIn {
+        @Override
+        TemplateModel _eval(Environment env) throws TemplateException {
+            TemplateModel model = evalMaybeNonexistentTarget(env);
+
+            if (model == null) {
+                return null;
+            }
+
+            String s = _EvalUtils.coerceModelToPlainTextOrUnsupportedMarkup(model, target, null, env);
+            String trimmed = s.trim();
+            return trimmed.isEmpty() ? null : new SimpleString(trimmed);
+        }
+    }
+
+    static class empty_to_nullBI extends BuiltInsForExistenceHandling.ExistenceBuiltIn {
+        @Override
+        TemplateModel _eval(Environment env) throws TemplateException {
+            TemplateModel model = evalMaybeNonexistentTarget(env);
+
+            if (model == null) {
+                return null;
+            }
+
+            String s = _EvalUtils.coerceModelToPlainTextOrUnsupportedMarkup(model, target, null, env);
+            return s.isEmpty() ? null : model;
+        }
+    }
+
 }
