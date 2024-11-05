@@ -18,15 +18,15 @@
  */
 package org.apache.freemarker.core.model;
 
-import java.io.IOException;
-import java.io.Writer;
-
 import org.apache.freemarker.core.CallPlace;
 import org.apache.freemarker.core.Environment;
 import org.apache.freemarker.core.NonTemplateCallPlace;
 import org.apache.freemarker.core.TemplateException;
 import org.apache.freemarker.core.model.impl.JavaMethodModel;
 import org.apache.freemarker.core.util.CallableUtils;
+
+import java.io.IOException;
+import java.io.Writer;
 
 /**
  * A {@link TemplateCallableModel} that progressively writes it result into the {@code out} object, instead of
@@ -49,18 +49,18 @@ public interface TemplateDirectiveModel extends TemplateCallableModel {
      * Invokes the callable object.
      * <p>
      * This method shouldn't deliberately throw {@link RuntimeException}, nor {@link IOException} that wasn't caused by
-     * writing to the output. Such exceptions should be catched inside the method and wrapped inside a
+     * writing to the output. Such exceptions should be caught inside the method and wrapped inside a
      * {@link TemplateException}. 
      *
      * @param args
      *         The array of argument values. Not {@code null}. If a parameter was omitted on the caller side, the
      *         corresponding array element will be {@code null}. The length of the array and the indexes correspond to
-     *         the {@link ArgumentArrayLayout} returned by {@link #getDirectiveArgumentArrayLayout()}. {@link
+     *         the {@link ArgumentArrayLayout} returned by {@link #getDirectiveArgumentArrayLayout()}. If {@link
      *         ArgumentArrayLayout} is not {@code null}, and the caller doesn't keep argument layout rules (such as the
      *         array is shorter than {@link ArgumentArrayLayout#getTotalLength()}, or the type of the values at {@link
      *         ArgumentArrayLayout#getPositionalVarargsArgumentIndex()} or at
      *         {@link ArgumentArrayLayout#getNamedVarargsArgumentIndex()}
-     *         is improper), this method may throws {@link IndexOutOfBoundsException} or {@link ClassCastException}.
+     *         is improper), this method may throw {@link IndexOutOfBoundsException} or {@link ClassCastException}.
      *         Thus, user Java code that wishes to call {@link TemplateCallableModel}-s is responsible to ensure that
      *         the argument array follows the layout described by {@link ArgumentArrayLayout}, as the {@code execute}
      *         method isn't meant to do validations on that level.
@@ -79,7 +79,7 @@ public interface TemplateDirectiveModel extends TemplateCallableModel {
      *
      * @throws TemplateException If any problem occurs that's not an {@link IOException} during writing the template
      *          output.
-     * @throws IOException When writing the template output fails. Other {@link IOException}-s should be catched in this
+     * @throws IOException When writing the template output fails. Other {@link IOException}-s should be caught in this
      *          method and wrapped into {@link TemplateException}.
      */
     void execute(TemplateModel[] args, CallPlace callPlace, Writer out, Environment env)
