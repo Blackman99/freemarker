@@ -21,32 +21,32 @@ jobs:
   test:
     strategy:
         matrix:
-            java: [8]
+            java: [17,21]
             os: [windows-latest,ubuntu-latest]
     runs-on: ${{ matrix.os }}
     concurrency: main_tests_${{ github.ref }}
     steps:
       - name: Welcome Message
         run: 'echo "Started with parameters: ${{ matrix.os }} / JDK ${{ matrix.java }} because ${{ github.event_name }} on ${{ github.ref }}"'
-      - uses: actions/checkout@v2.4.0
-      - name: Set up JDK 8 for compilation
-        uses: actions/setup-java@v2.5.0
+      - uses: actions/checkout@v4
+      - name: Set up JDK 17 for compilation
+        uses: actions/setup-java@v4
         with:
-          java-version: '8'
-          distribution: 'adopt'
+          java-version: 17
+          distribution: oracle
       - name: Set up JDK ${{ matrix.java }} for the build
-        uses: actions/setup-java@v2.5.0
-        if: matrix.java > 8
+        uses: actions/setup-java@v4
+        if: matrix.java > 17
         with:
           java-version: ${{ matrix.java }}
-          distribution: 'adopt'
+          distribution: oracle
       - name: Validate Gradle wrapper
-        uses: gradle/wrapper-validation-action@v1.0.4
+        uses: gradle/actions/wrapper-validation@v3
       - name: Run Build
         id: build_step
         run: './gradlew --continue clean build -xmanualOnline -PfreemarkerDefaultJavaVersion=${{ matrix.java }} -PsignPublication=false'
       - name: Upload Failed Report
-        uses: actions/upload-artifact@v2.3.1
+        uses: actions/upload-artifact@v4
         if: failure() && steps.build_step.outcome == 'failure'
         with:
           name: test-reports-${{ matrix.os }}-jdk${{ matrix.java }}
